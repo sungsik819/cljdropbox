@@ -2,6 +2,6 @@
   (:require [clojure.test :refer :all]
             [cljdropbox.core :refer :all]))
 
-(deftest a-test
-  (testing "FIXME, I fail."
-    (is (= 0 1))))
+(deftest core-test
+  (is (= (file-counts (get-access-token) "") 17))
+  (is (= (folder-file-size (get-access-token) "") 34126843)))
