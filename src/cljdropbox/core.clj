@@ -1,5 +1,7 @@
 (ns cljdropbox.core
-  (:require [clj-dropbox-oauth2.dropbox :as auth2dropbox]))
+  (:require [clj-dropbox-oauth2.dropbox :as auth2dropbox]
+            [clj-oauth2.client :as oauth2]
+            [cheshire.core :as json]))
 
 ; access-token 얻어오기
 (defn get-access-token []
@@ -15,3 +17,9 @@
   (reduce (fn [acc x] (+ acc (:bytes x))) 0
           (:contents (auth2dropbox/metadata access-token ""))))
 
+(auth2dropbox/metadata (get-access-token) "")
+
+
+(json/parse-string (:body (oauth2/get "https://api.dropbox.com/1/account/info" {:oauth2 {:access-token (get-access-token) :token-type "bearer"}})) true)
+
+(apply oauth2/get ["https://api.dropbox.com/1/account/info" (merge {} {:oauth2 {:access-token (get-access-token) :token-type "bearer"}})])
