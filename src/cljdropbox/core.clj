@@ -20,6 +20,16 @@
 (auth2dropbox/metadata (get-access-token) "")
 
 
-(json/parse-string (:body (oauth2/get "https://api.dropbox.com/1/account/info" {:oauth2 {:access-token (get-access-token) :token-type "bearer"}})) true)
+(defn parse-oauth2 [method access-token url params]
+  (json/parse-string
+   (:body (method url (merge params 
+                      {:oauth2 {:access-token access-token :token-type "bearer"}})))
+   true))
+
+(defn create-folder [access-token path]
+  (parse-oauth2 oauth2/post access-token "https://api.dropboxapi.com/1/fileops/create_folder" {:query-params {:root "auto" :path path}}))
+
+(defn delete [access-token path]
+  (parse-oauth2 oauth2/post access-token "https://api.dropboxapi.com/1/fileops/delete" {:query-params {:root "auto" :path path}}))
 
 (apply oauth2/get ["https://api.dropbox.com/1/account/info" (merge {} {:oauth2 {:access-token (get-access-token) :token-type "bearer"}})])
