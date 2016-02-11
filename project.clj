@@ -6,5 +6,6 @@
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [clj-http "2.0.1"]
                  [sudharsh/clj-oauth2 "0.5.3"]
-                 [clj-dropbox-oauth2 "0.1.1"]])
+                 [clj-dropbox-oauth2 "0.1.1"]]
+  :main cljdropbox.core)
                 
