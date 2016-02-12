@@ -3,15 +3,23 @@
             [cheshire.core :as json]
             [clj-http.client :as httpclient]))
 
-; access-token 얻어오기
+;access-token 얻어오기
 (defn get-access-token []
-  (:access_token (load-file "./info.env")))
+  (try
+    (:access_token (load-file "./info.env"))
+    (catch java.io.FileNotFoundException e
+      "FileNotFoundException")))
+  
 
 (defn parse-oauth2 [method access-token url params]
   (json/parse-string
-   (:body (method url (merge params 
-                      {:oauth2 {:access-token access-token :token-type "bearer"}})))
+   (:body (method url (merge params
+                             {:oauth2 {:access-token access-token :token-type "bearer"}})))
    true))
+  
+  
+
+
 
 (defn dropbox-usage [access-token]
   (:used (parse-oauth2 oauth2/post access-token "https://api.dropboxapi.com/2/users/get_space_usage" {})))
@@ -30,7 +38,7 @@
 ;(get-dropbox-files (fn [acc x] (+ acc 1)) dropbox-contents)
 
 (defn dropbox-list-folder [access-token params]
-  (parse-oauth2 oauth2/post access-token "https://api.dropboxapi.com/2/files/list_folder" {:content-type :json :form-params params}))
+  (parse-oauth2 oauth2/post access-token "https://api.dropboxapi.com/2/files/list_folder" {:content-type "json" :form-params params}))
 
 ;(dropbox-list-folder (get-access-token) {:path "" :recursive true :include_media_info true})
    
@@ -39,6 +47,9 @@
 
 ;(dropbox-list-folder-continue (get-access-token) (:cursor (dropbox-list-folder (get-access-token) {:path "" :recursive true :include_media_info true})))
 ;(dropbox-file-total (fn [acc x] (+ acc (:size x))))
+
+(defn get-file-counts [access-token params]
+  (get-dropbox-files (fn [acc x] (+ acc 1)) (dropbox-list-folder access-token params)))
 
 (defn create-folder [access-token path]
   (parse-oauth2 oauth2/post access-token "https://api.dropboxapi.com/1/fileops/create_folder" {:query-params {:root "auto" :path path}}))
