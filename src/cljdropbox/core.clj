@@ -27,36 +27,19 @@
 (defn dropbox-usage [access-token]
   (:used (parse-oauth2 httpclient/post access-token "https://api.dropboxapi.com/2/users/get_space_usage" {})))
 
-;(parse-oauth2 oauth2/post (get-access-token) "https://api.dropboxapi.com/2/files/create_folder" {:content-type :json :form-params {:path "/aaaa"}})
-
-;(:has_more dropbox-contents)
-;(:has_more dropbox-continue-contents5)
-
 (defn get-dropbox-files [func files]
   (reduce func 0 (filter (fn [x] (= (:.tag x) "file")) (:entries files))))
 
-;(count (:entries dropbox-contents))
-
-;(get-dropbox-files (fn [acc x] (+ acc (:size x))) dropbox-contents)
-;(get-dropbox-files (fn [acc x] (+ acc 1)) dropbox-contents)
-
 (defn dropbox-list-folder [access-token params]
   (parse-oauth2 httpclient/post access-token "https://api.dropboxapi.com/2/files/list_folder" {:content-type :json :form-params params}))
-
-;(dropbox-list-folder (get-access-token) {:path "" :recursive true :include_media_info true})
 
 (defn upload-file [access-token local-file remote-path]
   (parse-upload-oauth2 httpclient/post access-token
                        "https://content.dropboxapi.com/2/files/upload" remote-path  
                  {:content-type "application/octet-stream" :form-params {:data-binary local-file}}))
-
-;(upload-file (get-access-token) "/test.txt" "/test.txt")
                                                                             
 (defn dropbox-list-folder-continue [access-token cursor]
   (parse-oauth2 httpclient/post access-token "https://api.dropboxapi.com/2/files/list_folder/continue" {:content-type :json :form-params {:cursor (:cursor cursor)}}))
-
-;(dropbox-list-folder-continue (get-access-token) (:cursor (dropbox-list-folder (get-access-token) {:path "" :recursive true :include_media_info true})))
-;(dropbox-file-total (fn [acc x] (+ acc (:size x))))
 
 (defn get-file-counts [access-token params]
   (get-dropbox-files (fn [acc x] (+ acc 1)) (dropbox-list-folder access-token params)))
@@ -66,12 +49,6 @@
 
 (defn delete [access-token path]
   (parse-oauth2 httpclient/post access-token "https://api.dropboxapi.com/1/fileops/delete" {:query-params {:root "auto" :path path}}))
-
-;(apply oauth2/get ["https://api.dropbox.com/1/account/info" (merge {} {:oauth2 {:access-token (get-access-token) :token-type "bearer"}})])
-
-;(json/parse-string (:body (httpclient/post "https://api.dropboxapi.com/2/users/get_space_usage" {:headers {"Authorization" (format "Bearer %s" (get-access-token))}})))
-
-;(json/parse-string (:body (httpclient/post "https://api.dropboxapi.com/2/files/create_folder" {:headers {"Authorization" (format "Bearer %s" (get-access-token))} :content-type :json :form-params { :path "/aaaa"}})))
 
 (defn -main []
   (println (dropbox-usage (get-access-token))))
