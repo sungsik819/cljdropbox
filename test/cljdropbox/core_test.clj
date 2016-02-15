@@ -4,12 +4,19 @@
 
 (def file-counts (atom 0))
 
+(defn upload-file [local-path remote-path]
+  (cljdropbox/upload-file (cljdropbox/get-access-token) local-path remote-path)
+  (swap! file-counts inc))
+
+(defn delete [path]
+  (cljdropbox/delete (cljdropbox/get-access-token) path)
+  (reset! file-counts 0))
+  
 (defn create-folder-file-fixture [f]
   (cljdropbox/create-folder (cljdropbox/get-access-token) "tmpfolder")
-  (cljdropbox/upload-file (cljdropbox/get-access-token) "/test.txt" "/tmpfolder/test.txt")
-  (swap! file-counts inc)
+  (upload-file "/test.txt" "/tmpfolder/test.txt") 
   (f)
-  (cljdropbox/delete (cljdropbox/get-access-token) "tmpfolder"))
+  (delete "tmpfolder"))
 
 (use-fixtures :once create-folder-file-fixture)
 
