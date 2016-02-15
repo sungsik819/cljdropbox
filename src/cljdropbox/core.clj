@@ -15,11 +15,15 @@
    (:body (method url (merge params
                       {:headers {"Authorization" (format "Bearer %s" access-token)}})))
    true))
+
+(defn parse-upload-oauth2 [method access-token url path params]
+  (json/parse-string
+   (:body (method url (merge params
+                             {:headers {"Authorization" (format "Bearer %s" access-token)
+                                        "Dropbox-API-Arg" (format "{\"path\": \"%s\",\"mode\": \"add\",\"autorename\": true,\"mute\": false}" path)}})))
+   true))
   
   
-
-
-
 (defn dropbox-usage [access-token]
   (:used (parse-oauth2 httpclient/post access-token "https://api.dropboxapi.com/2/users/get_space_usage" {})))
 
@@ -40,7 +44,14 @@
   (parse-oauth2 httpclient/post access-token "https://api.dropboxapi.com/2/files/list_folder" {:content-type :json :form-params params}))
 
 ;(dropbox-list-folder (get-access-token) {:path "" :recursive true :include_media_info true})
-   
+
+(defn upload-file [access-token local-file remote-path]
+  (parse-upload-oauth2 httpclient/post access-token
+                       "https://content.dropboxapi.com/2/files/upload" remote-path  
+                 {:content-type "application/octet-stream" :form-params {:data-binary local-file}}))
+
+;(upload-file (get-access-token) "/test.txt" "/test.txt")
+                                                                            
 (defn dropbox-list-folder-continue [access-token cursor]
   (parse-oauth2 httpclient/post access-token "https://api.dropboxapi.com/2/files/list_folder/continue" {:content-type :json :form-params {:cursor (:cursor cursor)}}))
 
