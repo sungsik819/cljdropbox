@@ -10,19 +10,13 @@
       "FileNotFoundException")))
   
 
-(defn parse-oauth2 [method access-token url params]
-  (json/parse-string
-   (:body (method url (merge params
-                      {:headers {"Authorization" (format "Bearer %s" access-token)}})))
-   true))
+(defn parse-oauth2 [method access-token url params & path]
+  (json/parse-string (:body (method url (merge params
+                                               (if (nil? path)  {:headers {"Authorization" (format "Bearer %s" access-token)}}
+                                                   {:headers {"Authorization" (format "Bearer %s" access-token)
+                                                              "Dropbox-API-Arg" (format "{\"path\": \"%s\",\"mode\": \"add\",\"autorename\": true,\"mute\": false}" (first path))}}))))
+                     true))
 
-(defn parse-upload-oauth2 [method access-token url path params]
-  (json/parse-string
-   (:body (method url (merge params
-                             {:headers {"Authorization" (format "Bearer %s" access-token)
-                                        "Dropbox-API-Arg" (format "{\"path\": \"%s\",\"mode\": \"add\",\"autorename\": true,\"mute\": false}" path)}})))
-   true))
-  
   
 (defn dropbox-usage [access-token]
   (:used (parse-oauth2 httpclient/post access-token "https://api.dropboxapi.com/2/users/get_space_usage" {})))
@@ -34,10 +28,10 @@
   (parse-oauth2 httpclient/post access-token "https://api.dropboxapi.com/2/files/list_folder" {:content-type :json :form-params params}))
 
 (defn upload-file [access-token local-file remote-path]
-  (parse-upload-oauth2 httpclient/post access-token
-                       "https://content.dropboxapi.com/2/files/upload" remote-path  
-                 {:content-type "application/octet-stream" :form-params {:data-binary local-file}}))
-                                                                            
+  (parse-oauth2 httpclient/post access-token
+                       "https://content.dropboxapi.com/2/files/upload"   
+                 {:content-type "application/octet-stream" :form-params {:data-binary local-file}} remote-path))
+
 (defn dropbox-list-folder-continue [access-token cursor]
   (parse-oauth2 httpclient/post access-token "https://api.dropboxapi.com/2/files/list_folder/continue" {:content-type :json :form-params {:cursor (:cursor cursor)}}))
 
