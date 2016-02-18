@@ -1,31 +1,30 @@
 (ns cljdropbox.core-test
   (:require [clojure.test :refer :all]
-            [cljdropbox.core :as cljdropbox]))
+            [cljdropbox.core :as dropbox]))
 
-(def file-counts (atom 0))
+(def test-access-token (:access-token (load-file "./test-info.env")))
 
-(defn upload-file [local-path remote-path]
-  (cljdropbox/upload-file (cljdropbox/get-access-token) local-path remote-path)
-  (swap! file-counts inc))
+(def tag-file {:.tag "file",})
+(def tag-folder {:.tag "folder"})
 
-(defn delete [path]
-  (cljdropbox/delete (cljdropbox/get-access-token) path)
-  (reset! file-counts 0))
-  
-(defn create-folder-file-fixture [f]
-  (cljdropbox/create-folder (cljdropbox/get-access-token) "tmpfolder")
-  (upload-file "/test.txt" "/tmpfolder/test.txt") 
-  (f)
-  (delete "tmpfolder"))
+(defn mock-files-map [file-counts folder-counts]
+  {:entries (into (into [] (repeat file-counts tag-file)) (repeat folder-counts tag-folder)),
+   :cursor "1234567", :has_more false })
 
-(use-fixtures :once create-folder-file-fixture)
+;(dropbox/dropbox-list-folder test-access-token {:path "" :recursive true})
+(defn mock-list-folder-1files [params]
+  (mock-files-map 1 0))
 
-(deftest get-file-counts
-  (is (= (cljdropbox/get-file-counts (cljdropbox/get-access-token)
-                                     {:path "/tmpfolder"}) @file-counts)))
+(defn mock-list-folder-2files [params]
+  (mock-files-map 2 0))
 
-(deftest access-token-test
-  (testing "get-access-token"
-    (is (not (= (cljdropbox/get-access-token) "FileNotFoundException")))))
+(defn mock-list-1folder-3files [params]
+  (mock-files-map 3 1))
 
+((dropbox/get-file-counts mock-list-folder-1files) {:path ""})
+
+(deftest file-counts
+  (is (= 1 ((dropbox/get-file-counts mock-list-folder-1files) {:path ""})))
+  (is (= 2 ((dropbox/get-file-counts mock-list-folder-2files) {:path ""})))
+  (is (= 3 ((dropbox/get-file-counts mock-list-1folder-3files) {:path ""}))))
 
