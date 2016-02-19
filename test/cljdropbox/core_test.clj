@@ -2,23 +2,32 @@
   (:require [clojure.test :refer :all]
             [cljdropbox.core :as dropbox]))
 
-(def test-access-token (:access-token (load-file "./test-info.env")))
+;(def test-access-token (:access-token (load-file "./test-info.env")))
 
 (def tag-file {:.tag "file",})
 (def tag-folder {:.tag "folder"})
 
-(defn mock-folder-files-map [file-counts folder-counts]
-  {:entries (into (into [] (repeat file-counts tag-file)) (repeat folder-counts tag-folder)),
-   :cursor "1234567", :has_more false })
+(defn mock-data [file-counts folder-counts has-more]
+      {:entries (into (into [] (repeat file-counts tag-file)) (repeat folder-counts tag-folder)),
+       :cursor "1234567", :has_more has-more })
+
+(defn mock-datas [counts]
+  (conj (into [] (repeat counts (mock-data 1 1 true))) (mock-data 1 1 false)))
+  
+(def mock-4files [(mock-data 2 1 true) (mock-data 1 1 true) (mock-data 1 1 false)])
+(def mock-8files [(mock-data 2 1 true) (mock-data 5 1 true) (mock-data 1 1 false)])
+
+(defn mock-get-data-fn [func]
+  (fn [datas]
+    (func datas)))
+
+(def mock-get-data (mock-get-data-fn rest))
 
 ;(dropbox/dropbox-list-folder test-access-token {:path "" :recursive true})
 
-(defn mock-list-folder [file-counts folder-counts]
-  (fn [params]
-    (mock-folder-files-map file-counts folder-counts)))
-
 (deftest file-counts
-  (is (= 1 ((dropbox/get-file-counts (mock-list-folder 1 0)) {:path ""})))
-  (is (= 2 ((dropbox/get-file-counts (mock-list-folder 2 0)) {:path ""})))
-  (is (= 3 ((dropbox/get-file-counts (mock-list-folder 3 1)) {:path ""}))))
-
+  (is (= 1864 (dropbox/get-file-counts (mock-data 1864 136 false))))
+  (is (= 2 ((dropbox/get-all-file-counts mock-get-data) (mock-datas 1))))
+  (is (= 3 ((dropbox/get-all-file-counts mock-get-data) (mock-datas 2))))
+  (is (= 4 ((dropbox/get-all-file-counts mock-get-data) mock-4files)))
+  (is (= 8 ((dropbox/get-all-file-counts mock-get-data) mock-8files))))
