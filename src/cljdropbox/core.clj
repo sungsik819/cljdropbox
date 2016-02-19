@@ -21,19 +21,24 @@
 (defn dropbox-list-folder [params]
   (parse-oauth2 httpclient/post (str dropbox-url "/files/list_folder") {:content-type :json :form-params params}))
 
-;(defn dropbox-list-folder-continue [data]
-;  (parse-oauth2 httpclient/post access-token (str dropbox-url "/files/list_folder/continue") {:content-type :json :form-params {:cursor (:cursor data)}}))
+(defn dropbox-list-folder-continue [data]
+  (parse-oauth2 httpclient/post (str dropbox-url "/files/list_folder/continue") {:content-type :json :form-params {:cursor (:cursor data)}}))
+
 
 (defn get-file-counts [dropbox-files]
   (get-dropbox-files (fn [acc x] (+ acc 1)) dropbox-files))
 
 
-(defn get-all-file-counts [list-folder-countinue]
+(defn get-all-file-counts [get-data list-folder-countinue]
   (fn recursive [dropbox-datas]
-    (+ (get-file-counts (first dropbox-datas))
-       (if (:has_more (first dropbox-datas)) (recursive (list-folder-countinue dropbox-datas))
+    (+ (get-file-counts (get-data dropbox-datas))
+       (if (:has_more (get-data dropbox-datas)) (recursive (list-folder-countinue dropbox-datas))
            0))))
   
 
+
 (defn -main []
-  (println (dropbox-usage access-token)))
+  (println "usage: " (dropbox-usage))
+  (def dropbox-data (dropbox-list-folder {:path "" :recursive true}))
+  (def all-file-counts ((get-all-file-counts (fn [x] x) dropbox-list-folder-continue) dropbox-data))
+  (println "all-file-counts : " all-file-counts))

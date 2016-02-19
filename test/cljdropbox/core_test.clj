@@ -21,13 +21,14 @@
   (fn [datas]
     (func datas)))
 
-(def mock-get-data (mock-get-data-fn rest))
+(def mock-get-data (mock-get-data-fn first))
+(def mock-list-folder-continue (mock-get-data-fn rest))
 
 ;(dropbox/dropbox-list-folder test-access-token {:path "" :recursive true})
 
 (deftest file-counts
   (is (= 1864 (dropbox/get-file-counts (mock-data 1864 136 false))))
-  (is (= 2 ((dropbox/get-all-file-counts mock-get-data) (mock-datas 1))))
-  (is (= 3 ((dropbox/get-all-file-counts mock-get-data) (mock-datas 2))))
-  (is (= 4 ((dropbox/get-all-file-counts mock-get-data) mock-4files)))
-  (is (= 8 ((dropbox/get-all-file-counts mock-get-data) mock-8files))))
+  (is (= 2 ((dropbox/get-all-file-counts mock-get-data mock-list-folder-continue) (mock-datas 1))))
+  (is (= 3 ((dropbox/get-all-file-counts mock-get-data mock-list-folder-continue) (mock-datas 2))))
+  (is (= 4 ((dropbox/get-all-file-counts mock-get-data mock-list-folder-continue) mock-4files)))
+  (is (= 8 ((dropbox/get-all-file-counts mock-get-data mock-list-folder-continue) mock-8files))))
