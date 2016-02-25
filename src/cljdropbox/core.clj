@@ -5,11 +5,11 @@
 (def dropbox-url "https://api.dropboxapi.com/2")
 
 ;access-token 얻어오기
-(def access-token (:access_token (load-file "./info.env")))  
+(def access-token (atom (:access_token (load-file "./info.env"))))
 
 (defn parse-oauth2 [method url params]
   (json/parse-string (:body (method url (merge params
-                                               {:headers {"Authorization" (format "Bearer %s" access-token)}})))
+                                               {:headers {"Authorization" (format "Bearer %s" @access-token)}})))
   true))
   
 (defn dropbox-usage []
@@ -28,6 +28,8 @@
 (defn get-file-counts [dropbox-files]
   (get-dropbox-files (fn [acc x] (+ acc 1)) dropbox-files))
 
+(defn search [path query]
+  (parse-oauth2 httpclient/post (str dropbox-url "/files/search") {:content-type :json :form-params {:path path :query query}}))
 
 (defn get-all-file-counts [get-data list-folder-countinue]
   (fn recursive [dropbox-datas]

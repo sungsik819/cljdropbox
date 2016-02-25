@@ -2,7 +2,32 @@
   (:require [clojure.test :refer :all]
             [cljdropbox.core :as dropbox]))
 
-;(def test-access-token (:access-token (load-file "./test-info.env")))
+(def access-token (:access-token (load-file "./test-info.env")))
+
+(reset! dropbox/access-token access-token)
+
+(dropbox/search "" "*.txt")
+
+(def searched-file {:matches
+                    [
+                     {:match_type {:.tag "filename"},
+                      :metadata
+                      {
+                       :path_display "/Dropbox 시작하기.pdf",
+                       ;:client_modified "2016-02-18T02:37:01Z",
+                       :name "Dropbox 시작하기.pdf",
+                       ;:path_lower "/dropbox 시작하기.pdf",
+                       ;:rev "144ce253e",
+                       ;:size 965623,
+                       ;:id "id:cF1GFL4TxDAAAAAAAAAAAg",
+                       :.tag "file",
+                       ;:server_modified "2016-02-18T02:36:59Z"
+                       }
+                      }
+                     ],
+                    :more false,
+                    :start 1
+                    })
 
 (def tag-file {:.tag "file",})
 (def tag-folder {:.tag "folder"})
