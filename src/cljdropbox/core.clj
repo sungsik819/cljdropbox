@@ -36,7 +36,9 @@
     (+ (get-file-counts (get-data dropbox-datas))
        (if (:has_more (get-data dropbox-datas)) (recursive (list-folder-countinue dropbox-datas))
            0))))
-  
+
+(defn get-path-display [searched-data]
+  (map (fn [x] (:path_display (:metadata x))) (:matches searched-data)))
 
 
 (defn -main []

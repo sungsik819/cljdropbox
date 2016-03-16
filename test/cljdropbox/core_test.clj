@@ -3,32 +3,26 @@
             [cljdropbox.core :as dropbox]))
 
 (def access-token (:access-token (load-file "./test-info.env")))
-
 (reset! dropbox/access-token access-token)
 
-(dropbox/search "" "*.txt")
+(defn searched-data-file [path-display name]
+  { :metadata {:path_display path-display, :name name, :.tag "file"}})
 
-(def searched-file {:matches
-                    [
-                     {:match_type {:.tag "filename"},
-                      :metadata
-                      {
-                       :path_display "/Dropbox 시작하기.pdf",
-                       ;:client_modified "2016-02-18T02:37:01Z",
-                       :name "Dropbox 시작하기.pdf",
-                       ;:path_lower "/dropbox 시작하기.pdf",
-                       ;:rev "144ce253e",
-                       ;:size 965623,
-                       ;:id "id:cF1GFL4TxDAAAAAAAAAAAg",
-                       :.tag "file",
-                       ;:server_modified "2016-02-18T02:36:59Z"
-                       }
-                      }
-                     ],
-                    :more false,
-                    :start 1
-                    })
+(defn mock-search [path query]
+  searched-files)
 
+;(mock-search "" "*.txt")
+(def searched-files {:matches
+                     [(searched-data-file "/abcd.txt" "abcd.txt")
+                      (searched-data-file "/abcd2.txt" "adbcd2.txt")
+                      ],
+                     :more false,
+                     :start 2
+                     })
+
+(dropbox/get-path-display (mock-search "" "*.txt"))
+
+;(dropbox/get-path-display (dropbox/search "" "*.txt"))
 (def tag-file {:.tag "file",})
 (def tag-folder {:.tag "folder"})
 
