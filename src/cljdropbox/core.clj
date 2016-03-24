@@ -37,8 +37,11 @@
        (if (:has_more (get-data dropbox-datas)) (recursive (list-folder-countinue dropbox-datas))
            0))))
 
+(defn display-searched [searched-data]
+  (dorun (map #(println %) searched-data)))
+
 (defn get-path-display [searched-data]
-  (map (fn [x] (:path_display (:metadata x))) (:matches searched-data)))
+  (display-searched (map (fn [x] (:path_display (:metadata x))) (:matches searched-data))))
 
 
 (defn -main []
