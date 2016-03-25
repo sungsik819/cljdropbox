@@ -8,28 +8,28 @@
 (def access-token (atom (:access_token (load-file "./info.env"))))
 
 (defn parse-oauth2 [method url params]
-  (json/parse-string (:body (method url (merge params
+  (json/parse-string (:body (method (str dropbox-url url) (merge params
                                                {:headers {"Authorization" (format "Bearer %s" @access-token)}})))
   true))
   
 (defn dropbox-usage []
-  (:used (parse-oauth2 httpclient/post (str dropbox-url "/users/get_space_usage") {})))
+  (:used (parse-oauth2 httpclient/post "/users/get_space_usage" {})))
 
 (defn get-dropbox-files [func files]
   (reduce func 0 (filter (fn [x] (= (:.tag x) "file")) (:entries files))))
 
 (defn dropbox-list-folder [params]
-  (parse-oauth2 httpclient/post (str dropbox-url "/files/list_folder") {:content-type :json :form-params params}))
+  (parse-oauth2 httpclient/post "/files/list_folder" {:content-type :json :form-params params}))
 
 (defn dropbox-list-folder-continue [data]
-  (parse-oauth2 httpclient/post (str dropbox-url "/files/list_folder/continue") {:content-type :json :form-params {:cursor (:cursor data)}}))
+  (parse-oauth2 httpclient/post "/files/list_folder/continue" {:content-type :json :form-params {:cursor (:cursor data)}}))
 
 
 (defn get-file-counts [dropbox-files]
   (get-dropbox-files (fn [acc x] (+ acc 1)) dropbox-files))
 
-(defn search [path query]
-  (parse-oauth2 httpclient/post (str dropbox-url "/files/search") {:content-type :json :form-params {:path path :query query}}))
+(defn search-data [path query]
+  (parse-oauth2 httpclient/post "/files/search" {:content-type :json :form-params {:path path :query query}}))
 
 (defn get-all-file-counts [get-data list-folder-countinue]
   (fn recursive [dropbox-datas]
@@ -43,6 +43,8 @@
 (defn get-path-display [searched-data]
   (display-searched (map (fn [x] (:path_display (:metadata x))) (:matches searched-data))))
 
+(defn search [path query]
+  (get-path-display (search-data path query)))
 
 (defn -main []
   (println "usage: " (dropbox-usage))
