@@ -8,9 +8,6 @@
 (defn searched-data-file [path-display name]
   { :metadata {:path_display path-display, :name name, :.tag "file"}})
 
-(defn mock-search [path query]
-  searched-files)
-
 ;(mock-search "" "*.txt")
 (def searched-files {:matches
                      [(searched-data-file "/abcd.txt" "abcd.txt")
@@ -19,6 +16,9 @@
                      :more false,
                      :start 2
                      })
+
+(defn mock-search [path query]
+  searched-files)
 
 (dropbox/get-path-display (mock-search "" "*.txt"))
 
