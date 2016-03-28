@@ -15,11 +15,6 @@
   (json/parse-string (:body (dropbox-api-call method url params))
                      true))
 
-;(httpclient/post (str dropbox-content-url "/files/download") {:headers {"Authorization" (format "Bearer %s" @access-token)
-                                                                        ;"Dropbox-API-Arg" "{\"path\": \"/test.txt\"}"}})
-
-;(merge-with merge {:content-type :json} {:headers {"Authorization" "oauth"}})
-
 (defn dropbox-usage []
   (:used (parse-oauth2 httpclient/post (str dropbox-api-url "/users/get_space_usage") {})))
 
@@ -61,10 +56,14 @@
     (clojure.java.io/make-parents local-path)
     (spit local-path content)))
 
-;(download "/test.txt")
-
 (defn -main []
-  (println "usage: " (dropbox-usage))
-  (def dropbox-data (dropbox-list-folder {:path "" :recursive true}))
-  (def all-file-counts ((get-all-file-counts (fn [x] x) dropbox-list-folder-continue) dropbox-data))
-  (println "all-file-counts : " all-file-counts))
+  ;(println "usage: " (dropbox-usage))
+  ;(def dropbox-data (dropbox-list-folder {:path "" :recursive true}))
+  ;(def all-file-counts ((get-all-file-counts (fn [x] x) dropbox-list-folder-continue) dropbox-data))
+                                        ;(println "all-file-counts : " all-file-counts)
+  (in-ns 'cljdropbox.core)
+  (while true
+    (print "=> ")
+    (flush)
+    (let [command (read-line)]
+      (eval (read-string command)))))
