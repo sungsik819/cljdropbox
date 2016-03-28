@@ -8,13 +8,12 @@
 ;access-token 얻어오기
 (def access-token (atom (:access_token (load-file "./info.env"))))
 
-(defn parse-oauth2 [method url params]
-  (json/parse-string (:body (method url (merge-with merge params
-                                               {:headers {"Authorization" (format "Bearer %s" @access-token)}})))
-                     true))
+(defn dropbox-api-call [method url params]
+  (method url (merge-with merge params {:headers {"Authorization" (format "Bearer %s" @access-token)}})))
 
-(defn parse-oauth2-download [method url params]
-  (:body (method url (merge-with merge {:headers {"Authorization" (format "Bearer %s" @access-token)}} params))))
+(defn parse-oauth2 [method url params]
+  (json/parse-string (:body (dropbox-api-call method url params))
+                     true))
 
 ;(httpclient/post (str dropbox-content-url "/files/download") {:headers {"Authorization" (format "Bearer %s" @access-token)
                                                                         ;"Dropbox-API-Arg" "{\"path\": \"/test.txt\"}"}})
@@ -55,8 +54,12 @@
 (defn search [path query]
   (get-path-display (search-data path query)))
 
-(defn download [path]
-  (parse-oauth2-download httpclient/post (str dropbox-content-url "/files/download") {:headers {"Dropbox-API-Arg" (format "{\"path\": \"%s\"}" path)}}))
+(defn download [path local-path]
+  (let [content (:body (dropbox-api-call httpclient/post
+                                         (str dropbox-content-url "/files/download")
+                                         {:headers {"Dropbox-API-Arg" (format "{\"path\": \"%s\"}" path)}}))]
+    (clojure.java.io/make-parents local-path)
+    (spit local-path content)))
 
 ;(download "/test.txt")
 
