@@ -7,5 +7,5 @@
                  [clj-http "2.0.1"]
                  [cheshire "5.5.0"]]
   :main cljdropbox.core
-  :profiles {:uberjar {:aot :all}})
+  :profiles {:uberjar {:aot [cljdropbox.core]}})
                 

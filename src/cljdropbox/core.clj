@@ -1,6 +1,7 @@
 (ns cljdropbox.core
   (:require [cheshire.core :as json]                       
-            [clj-http.client :as httpclient]))
+            [clj-http.client :as httpclient])
+  (:gen-class))
 
 (def dropbox-api-url "https://api.dropboxapi.com/2")
 (def dropbox-content-url "https://content.dropboxapi.com/2")

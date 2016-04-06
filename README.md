@@ -1,10 +1,19 @@
 # cljdropbox
 
-A Clojure library designed to ... well, that part is up to you.
+cljdropbox implemented Clojure
 
 ## Usage
 
-FIXME
+1. Create info.env file to project root
+
+2. input access-token in info.env
+ex) {:access_token "1234567889"}
+
+3. lein run
+
+4. use search function or download function
+ex) (search "" "*.pdf")
+ex) (download "/Objective-C.pdf")
 
 ## License
 
