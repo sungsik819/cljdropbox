@@ -14,9 +14,11 @@ cljdropbox implemented Clojure
 
 4. use function
 
+<code>
    (search "" "*.txt")
    (download "/test.txt" "test.txt")
    (display-usage)
+</code>
 
 ## License
 
