@@ -19,6 +19,9 @@
 (defn dropbox-usage []
   (:used (parse-oauth2 httpclient/post (str dropbox-api-url "/users/get_space_usage") {})))
 
+(defn display-usage []
+  (println "usage : " (dropbox-usage)))
+
 (defn get-dropbox-files [func files]
   (reduce func 0 (filter (fn [x] (= (:.tag x) "file")) (:entries files))))
 
