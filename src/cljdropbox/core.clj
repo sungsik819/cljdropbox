@@ -16,9 +16,6 @@
   (json/parse-string (:body (dropbox-api-call method url params))
                      true))
 
-(defn- dropbox-usage []
-  (:used (parse-oauth2 httpclient/post (str dropbox-api-url "/users/get_space_usage") {})))
-
 (defn- get-dropbox-files [func files]
   (reduce func 0 (filter (fn [x] (= (:.tag x) "file")) (:entries files))))
 
@@ -32,17 +29,17 @@
 (defn- get-file-counts [dropbox-files]
   (get-dropbox-files (fn [acc x] (+ acc 1)) dropbox-files))
 
-(defn- search-data [path query]
-  (parse-oauth2 httpclient/post (str dropbox-api-url "/files/search") {:content-type :json :form-params {:path path :query query}}))
-
 (defn- display-searched [searched-data]
   (dorun (map #(println %) searched-data)))
 
 (defn- get-path-display [searched-data]
   (display-searched (map (fn [x] (:path_display (:metadata x))) (:matches searched-data))))
 
-(defn display-usage []
-  (println "usage : " (dropbox-usage)))
+(defn search-data [path query]
+  (parse-oauth2 httpclient/post (str dropbox-api-url "/files/search") {:content-type :json :form-params {:path path :query query}}))
+
+(defn dropbox-usage []
+  (:used (parse-oauth2 httpclient/post (str dropbox-api-url "/users/get_space_usage") {})))
 
 (defn get-all-file-counts [get-data list-folder-countinue]
   (fn recursive [dropbox-datas]

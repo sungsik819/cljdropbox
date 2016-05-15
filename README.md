@@ -10,15 +10,10 @@ cljdropbox implemented Clojure
 
    {:access_token "1234567889"}
 
-3. lein run
-
-4. use function
-
-<code>
-   (search "" "*.txt")
-   (download "/test.txt" "test.txt")
-   (display-usage)
-</code>
+3. dropbox-usage
+4. get-all-file-counts
+5. search-data
+6. download
 
 ## License
 
